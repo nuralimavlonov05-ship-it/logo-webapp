@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Logo Yaratish</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0d14;
+      --card: #16161f;
+      --card2: #1e1e2a;
+      --border: #2a2a3d;
+      --accent: #c8a96e;
+      --accent2: #e8c98a;
+      --danger: #e05555;
+      --ok: #4ecb8d;
+      --text: #f0ede8;
+      --muted: #7a7890;
+      --radius: 16px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      padding: 0 0 40px;
+      overflow-x: hidden;
+    }
+    .container { position:relative; z-index:1; padding:20px 16px; max-width:480px; margin:0 auto; }
+
+    /* HEADER */
+    .header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; animation:fadeDown 0.5s ease both; }
+    .header-left h1 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+    .header-left h1 span { color:var(--accent); }
+    .header-left p { font-size:12px; color:var(--muted); margin-top:2px; }
+    .credits-badge { background:linear-gradient(135deg,#c8a96e22,#c8a96e11); border:1px solid #c8a96e44; border-radius:12px; padding:8px 14px; text-align:center; }
+    .credits-badge .num { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; color:var(--accent); line-height:1; }
+    .credits-badge .lbl { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+
+    /* SECTION */
+    .section { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:14px; animation:fadeUp 0.5s ease both; }
+    .section:nth-child(2){animation-delay:.05s}
+    .section:nth-child(3){animation-delay:.1s}
+    .section:nth-child(4){animation-delay:.15s}
+    .section-label { font-size:11px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+
+    /* INPUT */
+    .input-wrap { position:relative; }
+    .brand-input { width:100%; background:var(--card2); border:1.5px solid var(--border); border-radius:12px; padding:14px 16px; padding-right:70px; font-size:15px; font-family:'DM Sans',sans-serif; color:var(--text); outline:none; transition:border-color 0.2s; }
+    .brand-input:focus { border-color:var(--accent); }
+    .brand-input::placeholder { color:var(--muted); }
+    .char-count { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:12px; color:var(--muted); font-family:'Syne',sans-serif; font-weight:600; transition:color 0.2s; }
+    .char-count.warn { color:var(--accent); }
+    .char-count.full { color:var(--danger); }
+
+    /* DIRECTION GRID */
+    .dir-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .dir-btn { background:var(--card2); border:1.5px solid var(--border); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; transition:all 0.2s; user-select:none; }
+    .dir-btn:active { transform:scale(0.95); }
+    .dir-btn .icon { font-size:22px; display:block; margin-bottom:4px; }
+    .dir-btn .name { font-size:11px; color:var(--muted); font-weight:500; }
+    .dir-btn.selected { border-color:var(--accent); background:linear-gradient(135deg,#c8a96e18,#c8a96e08); }
+    .dir-btn.selected .name { color:var(--accent); }
+
+    /* STYLE GRID */
+    .style-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+    .style-btn { background:var(--card2); border:1.5px solid var(--border); border-radius:10px; padding:8px 4px; text-align:center; cursor:pointer; transition:all 0.2s; user-select:none; }
+    .style-btn:active { transform:scale(0.95); }
+    .style-btn .icon { font-size:18px; display:block; margin-bottom:3px; }
+    .style-btn .name { font-size:10px; color:var(--muted); }
+    .style-btn.selected { border-color:var(--accent2); background:linear-gradient(135deg,#e8c98a18,#e8c98a08); }
+    .style-btn.selected .name { color:var(--accent2); }
+
+    /* RESULT */
+    .result-area { min-height:220px; background:var(--card2); border:1.5px dashed var(--border); border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; transition:border-color 0.3s; }
+    .result-area.has-image { border-style:solid; border-color:var(--accent); }
+    .result-placeholder { text-align:center; }
+    .result-placeholder .big-icon { font-size:42px; opacity:0.3; margin-bottom:8px; }
+    .result-placeholder p { font-size:13px; color:var(--muted); }
+    .result-image { width:100%; height:100%; object-fit:contain; border-radius:12px; display:none; }
+    .result-image.visible { display:block; }
+
+    /* MOCKUPS */
+    .mockup-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+    .mockup-item { background:var(--card2); border:1px solid var(--border); border-radius:10px; overflow:hidden; aspect-ratio:1; position:relative; display:none; }
+    .mockup-item.visible { display:block; }
+    .mockup-item canvas { width:100%; height:100%; display:block; }
+    .mockup-item .mockup-label { position:absolute; bottom:0; left:0; right:0; background:#00000088; font-size:9px; text-align:center; padding:3px; color:#fff; letter-spacing:1px; }
+
+    /* RESULT ACTIONS */
+    .result-actions { display:none; gap:8px; margin-top:10px; }
+    .result-actions.visible { display:flex; }
+    .action-btn { flex:1; padding:10px; border-radius:10px; border:1.5px solid var(--border); background:var(--card2); color:var(--text); font-size:12px; font-family:'DM Sans',sans-serif; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .action-btn:hover { border-color:var(--accent); }
+    .action-btn.danger:hover { border-color:var(--danger); color:var(--danger); }
+    .action-btn:active { transform:scale(0.97); }
+
+    /* GEN BUTTON */
+    .gen-btn { width:100%; background:linear-gradient(135deg,#c8a96e,#e8c98a); color:#0d0d14; border:none; border-radius:14px; padding:16px; font-size:15px; font-family:'Syne',sans-serif; font-weight:700; cursor:pointer; transition:all 0.25s; display:flex; align-items:center; justify-content:center; gap:10px; margin-top:6px; letter-spacing:0.3px; position:relative; overflow:hidden; }
+    .gen-btn:active { transform:scale(0.98); }
+    .gen-btn:disabled { background:var(--card2); color:var(--muted); cursor:not-allowed; transform:none; }
+    .gen-btn .btn-text { position:relative; z-index:1; }
+    .gen-btn .cost-tag { position:relative; z-index:1; background:#0d0d1440; border-radius:8px; padding:3px 8px; font-size:12px; }
+
+    /* LOADING */
+    .loading-overlay { display:none; position:absolute; inset:0; background:var(--card2); border-radius:12px; align-items:center; justify-content:center; flex-direction:column; gap:12px; z-index:10; }
+    .loading-overlay.active { display:flex; }
+    .spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; }
+    .loading-text { font-size:13px; color:var(--muted); }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 18px; font-size:13px; opacity:0; transition:all 0.3s; white-space:nowrap; z-index:999; pointer-events:none; }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .toast.success { border-color:var(--ok); color:var(--ok); }
+    .toast.error { border-color:var(--danger); color:var(--danger); }
+
+    .divider { height:1px; background:var(--border); margin:12px 0; }
+
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Logo <span>Yaratish</span></h1>
+      <p>AI yordamida professional logotip</p>
+    </div>
+    <div class="credits-badge">
+      <div class="num" id="creditsNum">—</div>
+      <div class="lbl">kredit</div>
+    </div>
+  </div>
+
+  <!-- 01 BREND NOMI -->
+  <div class="section">
+    <div class="section-label">01 — Brend nomi</div>
+    <div class="input-wrap">
+      <input class="brand-input" id="brandInput" type="text" maxlength="100"
+        placeholder="Masalan: NovaTech, FoodBox..." autocomplete="off"/>
+      <span class="char-count" id="charCount">0/100</span>
+    </div>
+  </div>
+
+  <!-- 02 YO'NALISH + USLUB -->
+  <div class="section">
+    <div class="section-label">02 — Yo'nalish</div>
+    <div class="dir-grid" id="dirGrid">
+      <div class="dir-btn" data-dir="IT"><span class="icon">💻</span><span class="name">IT</span></div>
+      <div class="dir-btn" data-dir="Gaming"><span class="icon">🎮</span><span class="name">Gaming</span></div>
+      <div class="dir-btn" data-dir="Business"><span class="icon">💼</span><span class="name">Biznes</span></div>
+      <div class="dir-btn" data-dir="Fashion"><span class="icon">👗</span><span class="name">Fashion</span></div>
+      <div class="dir-btn" data-dir="Food"><span class="icon">🍕</span><span class="name">Food</span></div>
+      <div class="dir-btn" data-dir="Sport"><span class="icon">💪</span><span class="name">Sport</span></div>
+      <div class="dir-btn" data-dir="Beauty"><span class="icon">💄</span><span class="name">Beauty</span></div>
+      <div class="dir-btn" data-dir="Education"><span class="icon">📚</span><span class="name">Ta'lim</span></div>
+      <div class="dir-btn" data-dir="Music"><span class="icon">🎵</span><span class="name">Musiqa</span></div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-label" style="margin-bottom:10px">Uslub</div>
+    <div class="style-grid" id="styleGrid">
+      <div class="style-btn" data-style="Minimalist"><span class="icon">✨</span><span class="name">Minimal</span></div>
+      <div class="style-btn" data-style="3D"><span class="icon">🎯</span><span class="name">3D</span></div>
+      <div class="style-btn" data-style="Flat"><span class="icon">🎨</span><span class="name">Flat</span></div>
+      <div class="style-btn" data-style="Luxury"><span class="icon">💎</span><span class="name">Luxury</span></div>
+      <div class="style-btn" data-style="Mascot"><span class="icon">🐯</span><span class="name">Mascot</span></div>
+    </div>
+  </div>
+
+  <!-- 03 NATIJA -->
+  <div class="section">
+    <div class="section-label">03 — Natija</div>
+    <div class="result-area" id="resultArea">
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Logo yaratilmoqda...</div>
+      </div>
+      <div class="result-placeholder" id="resultPlaceholder">
+        <div class="big-icon">🎨</div>
+        <p>Logo shu yerda chiqadi</p>
+      </div>
+      <img class="result-image" id="resultImage" crossorigin="anonymous" alt="Logo"/>
+    </div>
+
+    <!-- MOCKUPLAR -->
+    <div class="mockup-grid" id="mockupGrid">
+      <div class="mockup-item" id="mockupShirt">
+        <canvas id="shirtCanvas" width="200" height="200"></canvas>
+        <div class="mockup-label">👕 FUTBOLKA</div>
+      </div>
+      <div class="mockup-item" id="mockupCap">
+        <canvas id="capCanvas" width="200" height="200"></canvas>
+        <div class="mockup-label">🧢 KEPKA</div>
+      </div>
+      <div class="mockup-item" id="mockupBuilding">
+        <canvas id="buildingCanvas" width="200" height="200"></canvas>
+        <div class="mockup-label">🏢 BINO</div>
+      </div>
+    </div>
+
+    <!-- HARAKATLAR -->
+    <div class="result-actions" id="resultActions">
+      <button class="action-btn" id="downloadBtn">⬇️ PNG</button>
+      <button class="action-btn" id="downloadBwBtn">⬛ B&W</button>
+      <button class="action-btn danger" id="deleteBtn">🗑 O'chir</button>
+    </div>
+  </div>
+
+  <!-- GENERATSIYA TUGMASI -->
+  <button class="gen-btn" id="genBtn" disabled>
+    <span class="btn-text">✨ Logo Yaratish</span>
+    <span class="cost-tag" id="costTag">10 kredit</span>
+  </button>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  // Bot URL ga ?credits=300&cost=10 qo'shib yuboradi
+  const params = new URLSearchParams(window.location.search);
+  let userCredits = parseInt(params.get('credits') || '0');
+  const LOGO_COST = parseInt(params.get('cost') || '10');
+
+  document.getElementById('creditsNum').textContent = userCredits || '—';
+  document.getElementById('costTag').textContent = LOGO_COST + ' kredit';
+
+  let selectedDir = null, selectedStyle = null;
+  let generatedImageUrl = null, isGenerating = false;
+
+  // --- INPUT ---
+  const brandInput = document.getElementById('brandInput');
+  brandInput.addEventListener('input', () => {
+    const len = brandInput.value.length;
+    const cc = document.getElementById('charCount');
+    cc.textContent = len + '/100';
+    cc.className = 'char-count' + (len >= 100 ? ' full' : len >= 70 ? ' warn' : '');
+    checkReady();
+  });
+
+  // --- YO'NALISH ---
+  document.getElementById('dirGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.dir-btn'); if (!btn) return;
+    document.querySelectorAll('.dir-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedDir = btn.dataset.dir;
+    checkReady();
+  });
+
+  // --- USLUB ---
+  document.getElementById('styleGrid').addEventListener('click', e => {
+    const btn = e.target.closest('.style-btn'); if (!btn) return;
+    document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedStyle = btn.dataset.style;
+    checkReady();
+  });
+
+  function checkReady() {
+    const ok = brandInput.value.trim().length > 0 && selectedDir && selectedStyle;
+    document.getElementById('genBtn').disabled = !ok || isGenerating;
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show ' + type;
+    setTimeout(() => t.className = 'toast', 2800);
+  }
+
+  // --- GENERATSIYA ---
+  document.getElementById('genBtn').addEventListener('click', () => {
+    if (isGenerating) return;
+    const brand = brandInput.value.trim();
+    if (!brand || !selectedDir || !selectedStyle) return;
+    if (userCredits > 0 && userCredits < LOGO_COST) {
+      showToast('❌ Kredit yetarli emas!', 'error'); return;
+    }
+
+    isGenerating = true;
+    document.getElementById('genBtn').disabled = true;
+    document.getElementById('resultPlaceholder').style.display = 'none';
+    document.getElementById('resultImage').classList.remove('visible');
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('resultArea').classList.remove('has-image');
+    document.querySelectorAll('.mockup-item').forEach(m => m.classList.remove('visible'));
+    document.getElementById('resultActions').classList.remove('visible');
+
+    // Telegram botga ma'lumot yuborish
+    if (tg) {
+      tg.sendData(JSON.stringify({
+        action: 'generate_logo',
+        brand: brand,
+        direction: selectedDir,
+        style: selectedStyle
+      }));
+    }
+
+    // Bot javobini kutish — real holatda bot URL qaytaradi
+    // Hozir 3 soniya demo
+    setTimeout(() => {
+      showResult('https://picsum.photos/seed/' + encodeURIComponent(brand) + '/512/512');
+    }, 3000);
+  });
+
+  function showResult(imageUrl) {
+    generatedImageUrl = imageUrl;
+    isGenerating = false;
+    const img = document.getElementById('resultImage');
+    img.onload = () => {
+      document.getElementById('loadingOverlay').classList.remove('active');
+      img.classList.add('visible');
+      document.getElementById('resultArea').classList.add('has-image');
+      document.getElementById('resultActions').classList.add('visible');
+      drawMockups(img);
+      if (userCredits > 0) {
+        userCredits -= LOGO_COST;
+        document.getElementById('creditsNum').textContent = userCredits;
+      }
+      showToast('✅ Logo tayyor!', 'success');
+    };
+    img.src = imageUrl;
+  }
+
+  // --- MOCKUPLAR ---
+  function drawMockups(logoImg) {
+    drawShirt(logoImg);
+    drawCap(logoImg);
+    drawBuilding(logoImg);
+    document.querySelectorAll('.mockup-item').forEach(m => m.classList.add('visible'));
+  }
+
+  function drawShirt(logoImg) {
+    const c = document.getElementById('shirtCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,200,200);
+    // Oq fon
+    ctx.fillStyle = '#f5f5f5'; ctx.fillRect(0,0,200,200);
+    // Futbolka
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(55,38); ctx.lineTo(22,72); ctx.lineTo(42,82);
+    ctx.lineTo(42,162); ctx.lineTo(158,162); ctx.lineTo(158,82);
+    ctx.lineTo(178,72); ctx.lineTo(145,38);
+    ctx.lineTo(118,52); ctx.arc(100,52,18,0,Math.PI,true);
+    ctx.lineTo(82,52); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // Yoqa
+    ctx.beginPath(); ctx.arc(100,52,18,Math.PI,0); ctx.strokeStyle='#ddd'; ctx.stroke();
+    // Logo
+    try { ctx.drawImage(logoImg, 76, 88, 48, 48); } catch(e) {}
+  }
+
+  function drawCap(logoImg) {
+    const c = document.getElementById('capCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,200,200);
+    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0,0,200,200);
+    // Kepka asosi
+    ctx.fillStyle = '#2a2a4a';
+    ctx.beginPath(); ctx.ellipse(100,108,68,28,0,0,Math.PI*2); ctx.fill();
+    // Yuqori qism
+    ctx.beginPath(); ctx.ellipse(100,108,55,38,0,Math.PI,0,true); ctx.fillStyle='#2a2a4a'; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(100,105,52,42,0,Math.PI,0,true); ctx.fillStyle='#333355'; ctx.fill();
+    // Qir (brim)
+    ctx.fillStyle='#222244';
+    ctx.beginPath(); ctx.ellipse(100,108,75,14,0,0,Math.PI); ctx.fill();
+    // Chok
+    ctx.strokeStyle='#4a4a6a'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(100,68); ctx.lineTo(100,108); ctx.stroke();
+    // Logo
+    try { ctx.globalAlpha=0.92; ctx.drawImage(logoImg,76,70,48,38); ctx.globalAlpha=1; } catch(e){}
+  }
+
+  function drawBuilding(logoImg) {
+    const c = document.getElementById('buildingCanvas');
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,200,200);
+    // Osmon
+    const sky = ctx.createLinearGradient(0,0,0,200);
+    sky.addColorStop(0,'#1a2a4a'); sky.addColorStop(1,'#2a3a5a');
+    ctx.fillStyle = sky; ctx.fillRect(0,0,200,200);
+    // Bino
+    ctx.fillStyle = '#2a3a4a'; ctx.fillRect(35,45,130,155);
+    // Oynalar
+    for (let r=0; r<4; r++) {
+      for (let col=0; col<4; col++) {
+        ctx.fillStyle = Math.random()>0.35 ? '#f0e060' : (Math.random()>0.5 ? '#a0d0f0' : '#1a2a3a');
+        ctx.fillRect(44+col*28, 60+r*28, 16, 16);
+      }
+    }
+    // Bino chiziq
+    ctx.strokeStyle='#3a5a7a'; ctx.lineWidth=1;
+    ctx.strokeRect(35,45,130,155);
+    // Ustiga logo
+    try {
+      // Logoni bino ustiga: vyveski
+      ctx.fillStyle='#1a2a3a';
+      ctx.fillRect(50,170,100,24);
+      ctx.strokeStyle='#c8a96e'; ctx.lineWidth=1;
+      ctx.strokeRect(50,170,100,24);
+      ctx.globalAlpha=0.9;
+      ctx.drawImage(logoImg, 56, 173, 18, 18);
+      ctx.globalAlpha=1;
+    } catch(e){}
+  }
+
+  // --- YUKLAB OLISH ---
+  document.getElementById('downloadBtn').addEventListener('click', () => {
+    if (!generatedImageUrl) return;
+    const a = document.createElement('a');
+    a.href = generatedImageUrl;
+    a.download = (brandInput.value||'logo') + '.png';
+    a.target = '_blank'; a.click();
+    showToast('⬇️ Yuklanmoqda...', 'success');
+  });
+
+  document.getElementById('downloadBwBtn').addEventListener('click', () => {
+    if (!generatedImageUrl) return;
+    const canvas = document.createElement('canvas');
+    const img = document.getElementById('resultImage');
+    canvas.width = img.naturalWidth||512;
+    canvas.height = img.naturalHeight||512;
+    const ctx = canvas.getContext('2d');
+    try {
+      ctx.drawImage(img,0,0);
+      const data = ctx.getImageData(0,0,canvas.width,canvas.height);
+      for (let i=0; i<data.data.length; i+=4) {
+        const g = 0.299*data.data[i]+0.587*data.data[i+1]+0.114*data.data[i+2];
+        data.data[i]=data.data[i+1]=data.data[i+2]=g;
+      }
+      ctx.putImageData(data,0,0);
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = (brandInput.value||'logo')+'_bw.png';
+      a.click();
+      showToast('⬛ Oq-qora yuklandi', 'success');
+    } catch(e) { showToast('⚠️ CORS xatosi, to\'g\'ridan yuklab oling', 'error'); }
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', () => {
+    generatedImageUrl = null; isGenerating = false;
+    const img = document.getElementById('resultImage');
+    img.classList.remove('visible'); img.src='';
+    document.getElementById('resultArea').classList.remove('has-image');
+    document.getElementById('resultPlaceholder').style.display='';
+    document.getElementById('resultActions').classList.remove('visible');
+    document.querySelectorAll('.mockup-item').forEach(m=>m.classList.remove('visible'));
+    checkReady();
+    showToast('🗑 Logo o\'chirildi');
+  });
+
+  // Bot tomonidan rasm URL kelganda (future: postMessage orqali)
+  window.addEventListener('message', e => {
+    try {
+      const data = JSON.parse(e.data);
+      if (data.action === 'show_logo' && data.url) showResult(data.url);
+    } catch(_) {}
+  });
+</script>
+</body>
+</html>
